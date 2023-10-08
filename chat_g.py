@@ -27,7 +27,7 @@ def consentimiento(profile_url):
     username = profile_url.split("https://www.instagram.com/")[-1].strip('/')
 
     # Reemplazar espacios con guiones bajos
-    safe_filename = username.replace(" ", "_") + ".html"
+    safe_filename = username.replace(" ", "_")
     
     # Crear el nuevo URL para instanavigation
     url = f"https://instanavigation.com/user-profile/{username}/"
@@ -70,9 +70,9 @@ def carga_de_perfil(profile_link):
     try:
         # Verificar si el elemento 'spinner-border' está presente
         spinner_present = EC.presence_of_element_located((By.CSS_SELECTOR, "div.spinner-border"))
-        if WebDriverWait(driver, 5).until(spinner_present):
+        if WebDriverWait(driver, 4).until(spinner_present):
             # Esperar hasta que el elemento 'spinner-border' desaparezca
-            WebDriverWait(driver, 5).until_not(spinner_present)
+            WebDriverWait(driver, 4).until_not(spinner_present)
     except UnexpectedAlertPresentException:
         try:
             alert = driver.switch_to.alert
