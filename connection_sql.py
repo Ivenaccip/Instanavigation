@@ -23,9 +23,9 @@ def insert_into_db(conn, cursor, data):
     conn.commit()
 
 # Usando las funciones
-conn, cursor = connect_db('posts.db')
+conn, cursor = connect_db('data_profiles.db')
 
-with open("cleaned_file.txt", "r") as file:
+with open("coffeewithalyss_clean.txt", "r") as file:
     for line in file.readlines():
         data = line.strip().split(';')
         if len(data) == 3:
