@@ -128,4 +128,4 @@ for index, row in df.iterrows():
     # Cerrar el navegador
     driver.quit()
 
-#subprocess.run(["./automation.sh"])
+subprocess.run(["./automation.sh"])
