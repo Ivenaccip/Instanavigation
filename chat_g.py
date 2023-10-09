@@ -5,7 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
 from time import sleep
-# Extracción de código
+# Code extraction
 import pyautogui
 
 def handle_consent_popup():
@@ -55,7 +55,13 @@ def consentimiento(profile_url):
 
 def carga_de_perfil(profile_link):
     url = f"https://instanavigation.com/"
-    driver.get(url)
+    try:
+        driver.get(url)
+    except UnexpectedAlertPresentException:
+        alert = driver.switch_to.alert
+        print(alert.text)
+        alert.dismiss()
+        driver.refresh()
     sleep(1)
     handle_consent_popup()
 
@@ -117,5 +123,5 @@ for index, row in df.iterrows():
         k += 1
     consentimiento(profile_link)
 
-# Cerrar el navegador
-driver.quit()
+    # Cerrar el navegador
+    driver.quit()

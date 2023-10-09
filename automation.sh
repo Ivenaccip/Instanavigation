@@ -15,7 +15,8 @@ for file in ${directory}*html; do
 done
 
 for file in ${directory}*.txt; do
-	if [[ "$file" == "$[directory]requirements.txt" ]]; then
+	echo "$file"
+	if [[ "$file" == "${directory}requirements.txt" ]]; then
 		continue
 	else
 		echo "Reading $file"
