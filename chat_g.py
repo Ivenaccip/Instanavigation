@@ -53,6 +53,7 @@ def consentimiento(profile_url):
     pyautogui.write(safe_filename)
     sleep(2)
     pyautogui.press('enter')
+    sleep(3)
 
 def carga_de_perfil(profile_link):
     url = f"https://instanavigation.com/"
@@ -127,4 +128,4 @@ for index, row in df.iterrows():
     # Cerrar el navegador
     driver.quit()
 
-subprocess.run(["./automation.sh"])
+#subprocess.run(["./automation.sh"])
