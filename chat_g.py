@@ -7,6 +7,7 @@ from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertP
 from time import sleep
 # Code extraction
 import pyautogui
+import subprocess
 
 def handle_consent_popup():
     # Esperar hasta 10 segundos para que aparezca el cuadro de diálogo
@@ -125,3 +126,5 @@ for index, row in df.iterrows():
 
     # Cerrar el navegador
     driver.quit()
+
+subprocess.run(["./automation.sh"])
