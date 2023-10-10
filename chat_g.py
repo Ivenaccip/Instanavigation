@@ -130,3 +130,4 @@ driver.quit()
 
 subprocess.run(["./automation.sh"])
 subprocess.run(["python3", "connection_sql.py"])
+subprocess.run(["python3", "db_excel.py"])
