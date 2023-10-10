@@ -40,3 +40,7 @@ for txt_file in txt_files:
 
 # Cerrar la conexión
 conn.close()
+
+#Eliminacion de archivos .txt
+for txt_file in txt_files:
+    os.remove(txt_file)

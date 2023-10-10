@@ -126,6 +126,7 @@ for index, row in df.iterrows():
     consentimiento(profile_link)
 
     # Cerrar el navegador
-    driver.quit()
+driver.quit()
 
 subprocess.run(["./automation.sh"])
+subprocess.run(["python3", "connection_sql.py"])
