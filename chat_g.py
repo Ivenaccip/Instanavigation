@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
 # Code extraction
 import pyautogui
@@ -113,7 +115,7 @@ def handle_not_found_popup():
 df = pd.read_excel('try.xlsx')  # Cambia 'nombre_del_archivo.xlsx' por el nombre real de tu archivo
 
 # Iniciar el navegador Firefox con Selenium
-driver = webdriver.Firefox()  # Cambia 'ruta_del_geckodriver' por la ruta real del geckodriver
+driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))  # Cambia 'ruta_del_geckodriver' por la ruta real del geckodriver
 
 for index, row in df.iterrows():
     profile_link = row['link']  # Asume que 'link' es el nombre de la columna en tu DataFrame
