@@ -10,6 +10,8 @@ from time import sleep
 # Code extraction
 import pyautogui
 import subprocess
+# SQL
+from sqlalchemy import create_engine
 
 def handle_consent_popup():
     # Esperar hasta 10 segundos para que aparezca el cuadro de diálogo
@@ -111,21 +113,29 @@ def handle_not_found_popup():
         print("No se encontró el popup de perfil no encontrado o hubo un error al interactuar con él.")
 
 
-# Leer el archivo Excel
-df = pd.read_excel('try.xlsx')  # Cambia 'nombre_del_archivo.xlsx' por el nombre real de tu archivo
+# Conexion SQL
+user = 'office'
+password = 'Kroon111'
+host = 'localhost'
+bd = 'alpha_test'
+chain = f'mysql+mysqlconnector://{user}:{password}@{host}/{bd}'
+
+engine = create_engine(chain)
+
+query = 'SELECT instagram FROM influencers'
+
+df = pd.read_sql_query(query, engine)
 
 # Iniciar el navegador Firefox con Selenium
 driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))  # Cambia 'ruta_del_geckodriver' por la ruta real del geckodriver
 
-for index, row in df.iterrows():
-    profile_link = row['link']  # Asume que 'link' es el nombre de la columna en tu DataFrame
-    #profile = row['profile']
+for sql_profile in df['instagram']:
 
     k = 0  
     while k < 2:  # Intentamos cargar el perfil hasta 2 veces
-        carga_de_perfil(profile_link)
+        carga_de_perfil(sql_profile)
         k += 1
-    consentimiento(profile_link)
+    consentimiento(sql_profile)
 
     # Cerrar el navegador
 driver.quit()

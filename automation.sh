@@ -3,7 +3,7 @@
 user=$(whoami)
 
 origin="/home/${user}/Downloads"
-destination="/home/${user}/Documents/Instanavigation"
+destination=$(pwd)
 directory="./"
 
 find ${origin} -type f -name "*.html" -exec mv {} ${destination} \;
