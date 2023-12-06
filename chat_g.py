@@ -136,10 +136,14 @@ for sql_profile in df['instagram']:
         carga_de_perfil(sql_profile)
         k += 1
     consentimiento(sql_profile)
-
+    subprocess.run(["./automation.sh"])
+    subprocess.run(["python3", "connection_sql.py", sql_profile])
     # Cerrar el navegador
 driver.quit()
 
-subprocess.run(["./automation.sh"])
-subprocess.run(["python3", "connection_sql.py"])
+# Modificaciones: Vamos a crear un argumento de linea de comandos
+# Para poder mandar la informacion a otro codigo que genere la base de datos
+# process_influencers, de esta forma vamos a crear un ID a los objetos
+# Y ahora si vamos a tener todo en MySQL
+
 subprocess.run(["python3", "db_excel.py"])

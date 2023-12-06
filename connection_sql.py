@@ -1,44 +1,42 @@
 import sqlite3
 import os
+import sys
+from sqlalchemy import create_engine
+import mysql.connector
 
-def connect_db(db_name):
-    # Conectarse a la base de datos (la crea si no existe)
-    conn = sqlite3.connect(db_name)
-    cursor = conn.cursor()
-    
-    # Crear la tabla (si no existe)
-    cursor.execute('''
-    CREATE TABLE IF NOT EXISTS posts (
-        id INTEGER PRIMARY KEY,
-        link TEXT,
-        text TEXT,
-        date TEXT,
-        profile TEXT
-    )
-    ''')
+def insert_into_db(conn, cursor, txt_file, data, profile_name):
+    query = "INSERT INTO id_obj_download (Object_ID, Type, Link, Extract_text, Fecha, Profile) VALUES (%s, %s, %s, %s, %s, %s)"
+    cursor.execute(query, (txt_file, "Post", *data, profile_name))
     conn.commit()
-    
-    return conn, cursor
 
-def insert_into_db(conn, cursor, data, profile_name):
-    cursor.execute("INSERT INTO posts (link, text, date, profile) VALUES (?, ?, ?, ?)", (*data, profile_name))
-    conn.commit()
+conn = mysql.connector.connect(
+#Conexion SQL
+    host = 'localhost',
+    user = 'office',
+    password = 'Kroon111',
+    database = 'alpha_test'
+)
 
 # Usando las funciones
-conn, cursor = connect_db('data_profiles.db')
+cursor = conn.cursor()
 
 # Lista todos los archivos en el directorio actual con extensión .txt
 txt_files = [f for f in os.listdir('.') if f.endswith('.txt') and f != 'requirements.txt']
 
 for txt_file in txt_files:
-    profile_name = txt_file.replace("_clean.txt", "")
+# Verifica si se recibió el argumento sql_profile
+    if len(sys.argv) > 1:
+        profile_name = sys.argv[1]
+    else:
+        raise ValueError("Profile name was not sent")
     with open(txt_file, "r") as file:
         for line in file.readlines():
             data = line.strip().split(';')
             if len(data) == 3:
-                insert_into_db(conn, cursor, data, profile_name)
+                insert_into_db(conn, cursor, txt_file, data, profile_name)
 
 # Cerrar la conexión
+cursor.close()
 conn.close()
 
 #Eliminacion de archivos .txt
