@@ -1,6 +1,5 @@
 import pandas as pd
 from openpyxl import Workbook
-import sqlite3
 from sqlalchemy import create_engine
 import mysql.connector
 
@@ -25,6 +24,15 @@ def id_obj_down(cursor):
     db_data = cursor.fetchall()
     cursor.close()
     return db_data
+
+def reach(cursor):
+    query_reach = "SELECT name FROM actual_reach"
+    cursor.execute(query_reach, create_engine)
+    names = [row[0] for row in cursor.fetchall()]
+    return names
+    # Pasaremos names uno por uno y lo buscaremos dentro de la tabla influencers, para devolver el name
+    # y meterlo dentro de un INSERT INTO 
+
 
 # Variables iniciales
 information_xlsx = 'Information.xlsx'
