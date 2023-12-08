@@ -2,13 +2,7 @@ import pandas as pd
 from openpyxl import Workbook
 from sqlalchemy import create_engine
 import mysql.connector
-
-#Mediawaarden
-def datos_rango(cursor):
-    cursor.execute("SELECT `van`, `tot`, `bedrag` FROM mediawaarde")
-    df = pd.DataFrame(cursor.fetchall(), columns=['FROM', 'TO', 'Bedrag'])
-    cursor.close()
-    return df
+import subprocess
 
 #Hashtags
 def hashtags(cursor):
@@ -25,14 +19,9 @@ def id_obj_down(cursor):
     cursor.close()
     return db_data
 
-def reach(cursor):
-    query_reach = "SELECT name FROM actual_reach"
-    cursor.execute(query_reach, create_engine)
-    names = [row[0] for row in cursor.fetchall()]
-    return names
-    # Pasaremos names uno por uno y lo buscaremos dentro de la tabla influencers, para devolver el name
-    # y meterlo dentro de un INSERT INTO 
-
+def reward(cursor, link):
+    reward = cursor.execute(f"SELECT reach FROM reach_profile WHERE name = %s", (link))
+    return reward
 
 # Variables iniciales
 information_xlsx = 'Information.xlsx'
@@ -50,29 +39,36 @@ cursor = conn.cursor()
 
 df_hashtags = hashtags(cursor)
 db_data = id_obj_down(cursor)
-resultados_por_marca = {}
+brand_results = {}
+url_id = ""
 
 for marca, hashtags_brand in df_hashtags.iterrows():
-    resultados_encontrados = []
+    find_results = []
 
     for record in db_data:
-        texto, date, link = record
-        
-        for hashtag in hashtags_brand.dropna():
-            if hashtag in texto:
-                reward = None
-                # Omitimos la parte que verifica el Reach porque mencionaste ignorarlo
-                resultados_encontrados.append((texto, date, link, reward))
+        obj_id, tipo_obj, link, texto, date, instagram  = record
+        #Object_ID: obj_id/ Type: tipo_obj/ Link: link/ Extract_text: texto/ Fecha: date/ Profile: instagram
+        if tipo_obj == "Post":
+            for hashtag in hashtags_brand.dropna():
+                if hashtag in texto:
+                    subprocess.run(["./reach.sh", link])
+                    subprocess.run(["python3", "check.py", link])
+                    reward = reward(cursor, link)
+                    find_results.append((texto, date, link, reward))
+                    url_id = "Instagram"
+                    #Tenemos que poner un match, podemos usar el obj_id y pasar la info a una carpeta con bash
+        else:
+            subprocess.run(["./tesserach.sh", obj_id])
 
-    resultados_por_marca[marca] = resultados_encontrados
+    brand_results[marca] = find_results
 
 # Crear un archivo Excel de salida y hojas de cálculo con nombres de archivo y marca
 output_filename = 'Results.xlsx'
 workbook = Workbook()
 
-for marca, resultados in resultados_por_marca.items():
+for marca, resultados in brand_results.items():
     worksheet = workbook.create_sheet(title=f'{marca}')
-    worksheet.append(["Text", "Time", "Link", "Reward"])  # Agregar la primera fila con encabezados
+    worksheet.append(["Naam", "Datum", "Medium", "url/ID", "Reach", "Media"])  # Agregar la primera fila con encabezados
 
     for idx, (texto, date, link, reward) in enumerate(resultados, start=2):  # Comenzar desde la fila 2 para los datos
         worksheet.cell(row=idx, column=1, value=texto)
@@ -83,3 +79,4 @@ for marca, resultados in resultados_por_marca.items():
 # Guardar el archivo Excel
 workbook.remove(workbook['Sheet'])  # Eliminar la hoja en blanco predeterminada
 workbook.save(output_filename)
+#name, datum medium,url,reach, media value

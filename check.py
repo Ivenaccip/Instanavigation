@@ -1,5 +1,6 @@
 import mysql.connector
 import pandas as pd
+import sys
 
 def conectar_a_mysql():
     return mysql.connector.connect(
@@ -16,18 +17,46 @@ def obtener_datos_rango(conn):
     cursor.close()
     return df
 
+def link_value(conn, profile):
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT `reach` FROM actual_reach WHERE name = %s", (profile,))
+    Value = cursor.fetchone()
+    return Value[0] if Value else None
+
+def reach_profile(conn, profile, reach):
+    cursor = conn.cursor()
+    cursor.execute(f"INSERT INTO reach_profile (name, reach) VALUES (%s, %s)", (profile, reach))
+
 conn = conectar_a_mysql()
+#prefijo
+prefix = "https://www.instagram.com/"
 
 try:
     df = obtener_datos_rango(conn)
-    Value = 80000
+    if len(sys.argv) > 1:
+        link_enviado = sys.argv[1]
+        if link_enviado.startswith(prefix):
+            profile = link_enviado[len(prefix):].replace('/','')
+        else:
+            raise ValueError("sent link error")
 
+    #Conexion con la Base de datos mediawaarde
+    Value = link_value(conn, profile)
     for index, row in df.iterrows():
+        lower_bound = row['FROM']
         upper_bound = row['TO'] if row['TO'] is not None else float('inf')
-        # Ajusta la condición para ser exclusiva en el límite superior
-        if row['FROM'] <= Value < upper_bound:
-            print(f"{row['Bedrag']}")
-            break  # Detiene el bucle después de encontrar el primer valor coincidente
+
+        if lower_bound <= Value < upper_bound:
+            reach = row['Bedrag']
+            reach_profile(conn, profile, reach)
+            break
+        elif Value >= 75000:
+            reach = 3230
+            reach_profile(conn, profile, reach)
+            break
+        
+    else:
+        raise ValueError("No se mando un link")
 
 except mysql.connector.Error as e:
     print(f"Error en la base de datos: {e}")
