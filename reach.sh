@@ -47,6 +47,8 @@ while read linea; do
     numero_entero=$((linea_sin_comas))
 
     # Usar numero_entero en tu comando SQL
-    mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" "$BD_NAME" -e "INSERT INTO actual_reach (name, reach) VALUES ('$link_clean', $numero_entero);"
+    mysql -u"$BD_USER" -
+    p"$BD_PASS" -h "$BD_HOST" "$BD_NAME" -e "INSERT INTO actual_reach (name, reach, mediawaarde) VALUES ('$link_clean', '$numero_entero', NULL);"
+    
 
 done < results/reach_$link_clean.txt

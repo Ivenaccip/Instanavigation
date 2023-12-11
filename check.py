@@ -23,22 +23,17 @@ def link_value(conn, profile):
     Value = cursor.fetchone()
     return Value[0] if Value else None
 
-def reach_profile(conn, profile, reach):
+def reach_profile(conn, profile, mediawaarde):
     cursor = conn.cursor()
-    cursor.execute(f"INSERT INTO reach_profile (name, reach) VALUES (%s, %s)", (profile, reach))
+    update_mediawaarde = (f"UPDATE reach_profile SET mediawaarde = %s WHERE name = %s")
+    cursor.execute(update_mediawaarde, (mediawaarde, profile))
 
 conn = conectar_a_mysql()
-#prefijo
-prefix = "https://www.instagram.com/"
 
 try:
     df = obtener_datos_rango(conn)
     if len(sys.argv) > 1:
-        link_enviado = sys.argv[1]
-        if link_enviado.startswith(prefix):
-            profile = link_enviado[len(prefix):].replace('/','')
-        else:
-            raise ValueError("sent link error")
+        profile = sys.argv[1]
 
     #Conexion con la Base de datos mediawaarde
     Value = link_value(conn, profile)
@@ -47,12 +42,12 @@ try:
         upper_bound = row['TO'] if row['TO'] is not None else float('inf')
 
         if lower_bound <= Value < upper_bound:
-            reach = row['Bedrag']
-            reach_profile(conn, profile, reach)
+            mediawaarde = row['Bedrag']
+            reach_profile(conn, mediawaarde, profile)
             break
         elif Value >= 75000:
-            reach = 3230
-            reach_profile(conn, profile, reach)
+            mediawaarde = 3230
+            reach_profile(conn, mediawaarde, profile)
             break
         
     else:
