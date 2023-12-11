@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 import mysql.connector
 
 def insert_into_db(conn, cursor, txt_file, data, profile_name):
-    query = "INSERT INTO id_obj_download (Object_ID, Type, Link, Extract_text, Fecha, Profile) VALUES (%s, %s, %s, %s, %s, %s)"
+    query = "INSERT INTO id_obj_download (Object_ID, Type, Name, Extract_text, Fecha, Profile) VALUES (%s, %s, %s, %s, %s, %s)"
     cursor.execute(query, (txt_file, "Post", *data, profile_name))
     conn.commit()
 
@@ -26,7 +26,7 @@ txt_files = [f for f in os.listdir('.') if f.endswith('.txt') and f != 'requirem
 for txt_file in txt_files:
 # Verifica si se recibió el argumento sql_profile
     if len(sys.argv) > 1:
-        profile_name = sys.argv[1]
+        profile_name = sys.argv[1] 
     else:
         raise ValueError("Profile name was not sent")
     with open(txt_file, "r") as file:

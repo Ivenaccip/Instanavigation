@@ -14,24 +14,22 @@ fi
 
 #Comand Line Argument clean
 link=$1
-link_clean=$(echo "$link" | sed -e 's#https://www.instagram.com/##' | tr -d '/') 
-echo "$link_clean"
-touch results/reach_$link_clean.txt
+touch results/reach_$link.txt
 
 #wget y extract
-wget --wait=3 --limit-rate=40K -U Mozilla -bq https://www.picnob.com/profile/$link_clean -O results/Ig-$link_clean.txt >/dev/null
+wget --wait=3 --limit-rate=40K -U Mozilla -bq https://www.picnob.com/profile/$link -O results/Ig-$link.txt >/dev/null
 sleep 5
 
-if [ ! -s results/Ig-$link_clean.txt ]; then
+if [ ! -s results/Ig-$link.txt ]; then
     echo "El archivo descargado está vacío o no existe."
     exit 1
 fi
 
-cat results/Ig-$link_clean.txt | grep '<div class="num"*' | head -2 | tail -1 | sed 's/<div.*tle="//;s/">//g'  >> results/reach_$link_clean.txt
+cat results/Ig-$link.txt | grep '<div class="num"*' | head -2 | tail -1 | sed 's/<div.*tle="//;s/">//g'  >> results/reach_$link.txt
 
 
 #verificacion de peso
-size=$(stat -c%s "results/reach_$link_clean.txt")
+size=$(stat -c%s "results/reach_$link.txt")
 
 # Si el tamaño del archivo es 0, espera 2 segundos más
 if [ "$size" -eq 0 ]; then
@@ -48,7 +46,7 @@ while read linea; do
 
     # Usar numero_entero en tu comando SQL
     mysql -u"$BD_USER" -
-    p"$BD_PASS" -h "$BD_HOST" "$BD_NAME" -e "INSERT INTO actual_reach (name, reach, mediawaarde) VALUES ('$link_clean', '$numero_entero', NULL);"
-    
+    p"$BD_PASS" -h "$BD_HOST" "$BD_NAME" -e "INSERT INTO actual_reach (name, reach, mediawaarde) VALUES ('$link', '$numero_entero', NULL);"
 
-done < results/reach_$link_clean.txt
+
+done < results/reach_$link.txt

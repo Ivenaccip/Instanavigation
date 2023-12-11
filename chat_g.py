@@ -42,12 +42,12 @@ def consentimiento(profile_url):
     handle_not_found_popup()
     try:
         # Encontrar el elemento div con las clases especificadas y hacer clic en él
-        element = driver.find_element(By.CSS_SELECTOR, "div.profile-publications__btn:nth-child(3)")
+        element = driver.find_element(By.XPATH, '//div[@class="profile-publications__btn me-5 active_btn"]')
         element.click()
         print("click")
         sleep(1)
     except Exception as e:
-        print(f"Error: {e}")
+        print("Xpath didn't find")
         sleep(2)
     # Presionar 'ctrl' + 'u' para abrir el código fuente de la página
     pyautogui.hotkey('ctrl', 'u')
@@ -58,6 +58,7 @@ def consentimiento(profile_url):
     sleep(2)
     pyautogui.press('enter')
     sleep(3)
+    pyautogui.hotkey('ctrl', 'w')
 
 def carga_de_perfil(profile_link):
     url = f"https://instanavigation.com/"
@@ -126,11 +127,16 @@ query = 'SELECT instagram FROM influencers'
 
 df = pd.read_sql_query(query, engine)
 
+#prefix
+prefix = "https://www.instagram.com/"
 # Iniciar el navegador Firefox con Selenium
 driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))  # Cambia 'ruta_del_geckodriver' por la ruta real del geckodriver
 
 for sql_profile in df['instagram']:
-
+    if sql_profile.startswith(prefix):
+        profile = sql_profile[len(prefix):].replace('/','')
+    else:
+        raise ValueError("Error conversion")
     k = 0  
     while k < 2:  # Intentamos cargar el perfil hasta 2 veces
         carga_de_perfil(sql_profile)

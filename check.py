@@ -29,11 +29,13 @@ def reach_profile(conn, profile, mediawaarde):
     cursor.execute(update_mediawaarde, (mediawaarde, profile))
 
 conn = conectar_a_mysql()
-
+profile = None
 try:
     df = obtener_datos_rango(conn)
     if len(sys.argv) > 1:
         profile = sys.argv[1]
+    if profile is None:
+        raise ValueError("Profile Empty")
 
     #Conexion con la Base de datos mediawaarde
     Value = link_value(conn, profile)
