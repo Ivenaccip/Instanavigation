@@ -12,6 +12,8 @@ import pyautogui
 import subprocess
 # SQL
 from sqlalchemy import create_engine
+#code Linea Argument
+import sys
 
 def handle_consent_popup():
     # Esperar hasta 10 segundos para que aparezca el cuadro de diálogo
@@ -42,10 +44,10 @@ def consentimiento(profile_url):
     handle_not_found_popup()
     try:
         # Encontrar el elemento div con las clases especificadas y hacer clic en él
-        element = driver.find_element(By.XPATH, '//div[@class="profile-publications__btn me-5 active_btn"]')
+        element = WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, "profile-publications__btn me-5")))
         element.click()
         print("click")
-        sleep(1)
+        sleep(2)
     except Exception as e:
         print("Xpath didn't find")
         sleep(2)
@@ -114,7 +116,7 @@ def handle_not_found_popup():
         print("No se encontró el popup de perfil no encontrado o hubo un error al interactuar con él.")
 
 
-# Conexion SQL
+"""# Conexion SQL
 user = 'office'
 password = 'Kroon111'
 host = 'localhost'
@@ -126,25 +128,26 @@ engine = create_engine(chain)
 query = 'SELECT instagram FROM influencers'
 
 df = pd.read_sql_query(query, engine)
-
+"""
 #prefix
 prefix = "https://www.instagram.com/"
 # Iniciar el navegador Firefox con Selenium
 driver = webdriver.Chrome(service = Service(ChromeDriverManager().install()))  # Cambia 'ruta_del_geckodriver' por la ruta real del geckodriver
 
-for sql_profile in df['instagram']:
-    if sql_profile.startswith(prefix):
-        profile = sql_profile[len(prefix):].replace('/','')
-    else:
-        raise ValueError("Error conversion")
-    k = 0  
-    while k < 2:  # Intentamos cargar el perfil hasta 2 veces
-        carga_de_perfil(sql_profile)
-        k += 1
-    consentimiento(sql_profile)
-    subprocess.run(["./automation.sh"])
-    subprocess.run(["python3", "connection_sql.py", sql_profile])
-    subprocess.run(["python3", "db_excel.py", sql_profile])
+try:
+    if len(sys.argv) > 1:
+        profile = sys.argv[1]
+        if profile.startswith(prefix):
+            profile = profile[len(prefix):].replace('/','')
+        else:
+            raise ValueError("Error conversion HTML to user")
+        k = 0  
+        while k < 2:  # Intentamos cargar el perfil hasta 2 veces
+            carga_de_perfil(profile)
+            k += 1
+        consentimiento(profile)
+except:
+    print("No connection with Mysql")
     # Cerrar el navegador
 driver.quit()
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user=$(whoami)
+user="kroonadmin"
 
 origin="/home/${user}/Downloads"
 destination=$(pwd)
