@@ -10,7 +10,7 @@ find ${origin} -type f -name "*.html" -exec mv {} ${destination} \;
 
 for file in ${directory}*html; do
 	if [ -f "$file" ]; then
-		mv "$file" "${file%.html}.txt"
+		cp "$file" "${file%.html}.txt"
 	fi
 done
 

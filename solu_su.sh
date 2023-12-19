@@ -17,7 +17,9 @@ result=$(mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" "$BD_NAME" -e "SELECT ins
 USER_NAME="kroonadmin"
 
 while read -r instagram; do
-    sudo -u $USER_NAME python3 chat_g.py "$instagram"
+    sudo -u $USER_NAME python3 stories.py "$instagram"
 done <<< "$result"
 
-./automation.sh
+echo "Downloading information"
+
+./move.sh
