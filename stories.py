@@ -59,7 +59,7 @@ def consentimiento(profile_url):
         EC.presence_of_all_elements_located((By.XPATH, '//img[@class = "stories__img"]'))
     )
         for index, element in enumerate(elements, start=1):  # Iterar a través de cada elemento encontrado
-            sleep(5)
+            sleep(4)
             driver.execute_script("arguments[0].click();", element)  # Hacer clic utilizando JavaScript
             print("Clicked on an element")
             pyautogui.moveTo(480, 607)
@@ -83,20 +83,49 @@ def consentimiento(profile_url):
             
             # Esperar a que la imagen se guarde antes de continuar
             sleep(1)
-                # SQL para insertar datos
-            insert_query = """
-            INSERT INTO id_obj_download (Object_ID, Type, Link, Extract_text, Fecha, Profile)
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """
-            insert_data = (filename, 'Ig-Post', str(index), None, datetime.now().date(), username)
 
-            # Ejecutar la consulta
-            cursor.execute(insert_query, insert_data)
+            # SQL para insertar datos
+            try:
+                table_n_data(filename, index, username, cursor, conn)
+            except Exception as e:
+                print("Error inserting the data to the table")
 
-            # Confirmar la transacción
-            conn.commit()
+            sleep(1)
     except Exception as e:
         print("Xpath didn't find:", e)
+
+#Search table if not exist, create it
+def table_n_data(filename, index, username, cursor, conn):
+    cursor.execute("SHOW TABLES LIKE id_obj_download")
+    tables_exists = cursor.fetchone()
+
+    if not tables_exists:
+        print("Creating Table id_obj_download")
+        create_table_query = """
+        CREATE TABLE id_obj_download (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        OBJECT_id VARCHAR(50),
+        Type VARCHAR(20),
+        Link TEXT,
+        Extract_text TEXT,
+        Fecha DATE,
+        Profile VARCHAR(255),
+        PROCESS VARCHAR(20)
+        )
+        """
+        conn.execute(create_table_query)
+
+    #If exist, it'll sent the data
+    insert_query = """
+    INSERT INTO id_obj_download (Object_ID, Type, Link, Extract_text, Fecha, Profile, Process)
+    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """
+    insert_data = (filename, 'Ig-Post', str(index), None, datetime.now().date(), username, None)
+
+    # Ejecutar la consulta
+    cursor.execute(insert_query, insert_data)
+    # Confirm the data was upload
+    conn.commit()
 
 def handle_not_found_popup():
     try:
