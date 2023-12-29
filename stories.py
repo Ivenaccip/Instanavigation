@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException, TimeoutException
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -54,45 +54,51 @@ def consentimiento(profile_url):
 
     try:
     # Esperar y encontrar todos los elementos div con las clases especificadas
-        current_date = datetime.now().strftime("%d-%m-%Y")
         elements = WebDriverWait(driver, 8).until(
         EC.presence_of_all_elements_located((By.XPATH, '//img[@class = "stories__img"]'))
     )
-        for index, element in enumerate(elements, start=1):  # Iterar a través de cada elemento encontrado
-            sleep(4)
-            driver.execute_script("arguments[0].click();", element)  # Hacer clic utilizando JavaScript
-            print("Clicked on an element")
-            pyautogui.moveTo(480, 607)
-            pyautogui.rightClick()
-            pyautogui.press('down')
-            pyautogui.press('down')
-            
-            # Presionar 'enter' para abrir el diálogo de guardar
-            pyautogui.press('enter')
+        if not elements:
+            no_stories = WebDriverWait(driver, 1).until(
+            EC.presence_of_element_located((By.XPATH, 'text-center empty-stories-text mt-3'))
+            )
+            print(no_stories.text)
 
-            # Esperar a que el diálogo de guardar se abra (ajusta este tiempo según sea necesario)
-            sleep(2)
-
-            filename = f"{datetime.now().strftime('%d-%m-%Y')}_{index}_{username}"
-
-            # Escribir el nombre del archivo
-            pyautogui.write(f'{filename}')
+        else:
+            for index, element in enumerate(elements, start=1):  # Iterar a través de cada elemento encontrado
+                sleep(4)
+                driver.execute_script("arguments[0].click();", element)  # Hacer clic utilizando JavaScript
+                print("Clicked on an element")
+                pyautogui.moveTo(480, 607)
+                pyautogui.rightClick()
+                pyautogui.press('down')
+                pyautogui.press('down')
             
-            # Presionar 'enter' para guardar la imagen
-            pyautogui.press('enter')
+                # Presionar 'enter' para abrir el diálogo de guardar
+                pyautogui.press('enter')
+
+                # Esperar a que el diálogo de guardar se abra (ajusta este tiempo según sea necesario)
+                sleep(2)
+
+                filename = f"{datetime.now().strftime('%d-%m-%Y')}_{index}_{username}"
+
+                # Escribir el nombre del archivo
+                pyautogui.write(f'{filename}')
             
-            # Esperar a que la imagen se guarde antes de continuar
+                # Presionar 'enter' para guardar la imagen
+                pyautogui.press('enter')
+            
+                # Esperar a que la imagen se guarde antes de continuar
+                sleep(1)
+
+                # SQL para insertar datos
+                try:
+                    table_n_data(filename, index, username, cursor, conn)
+                except Exception as e:
+                    print("Error inserting the data to the table")
+
             sleep(1)
-
-            # SQL para insertar datos
-            try:
-                table_n_data(filename, index, username, cursor, conn)
-            except Exception as e:
-                print("Error inserting the data to the table")
-
-            sleep(1)
-    except Exception as e:
-        print("Xpath didn't find:", e)
+    except ValueError as e:
+        print(e)
 
 #Search table if not exist, create it
 def table_n_data(filename, index, username, cursor, conn):
