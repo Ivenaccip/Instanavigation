@@ -15,14 +15,34 @@ if [ "$(id -u)" != "0" ]; then
 fi
 echo "Running the system as root"
 
-#Create Retults folder
+#Create Results folder
+if [ ! -d "Results" ]; then
+    mkdir "Results"
+fi
+
+#Create a database for each .xlsx
+"""We need to create a database for each .xlsx, then we can continue
+spliting the information"""
+
+actual_directory='./'
+
+xlsx_files=($(find "$actual_directory" -maxdepth 1 -name "*.xlsx"))
+if [[ ${#xlsx_files} -eq 0 ]]; then 
+    echo "The program requires *.xlsx documents"
+    exit 1
+else
+    for file in "${xlsx_files[@]}"; do
+        base_name=$(basename "$file" .xlsx)
+        echo "Creating a database for $base_name"
+        mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" -e "CREATE DATABASE IF NOT EXISTS \`$base_name\`;"
+fi
 
 #Split and all_influencers data base
 """Verify if we have a database for each .xlsx
 If we don't have, we'll run split.py
 If it exist, we will verify all_influencers data base""" 
     #Split.py, we separate the excel and convert everything in a table
-
+    python3 split_or_create.py
     #We will create all_influencers data base
 
 #Extraction process
@@ -66,4 +86,21 @@ or in foody box"""
         """We create colaborations when the nuber of companies in
         companies tables is > 2"""
 
-    #Sent the photos for each folder
+#Sent the photos for each folder
+"""The boxes are classify in match and no matched, this information 
+is in matched table. It'll be attached with ia_process table. This 
+process is part of db_excel.py and must be separate in differents parts"""
+    #Move matched photos
+    """The id_objs in matched table will pass verify the information
+    to reach.sh, extract the reach and then insert the info into 
+    reach_matched table. Then the objects we'll move for each folder"""
+
+    #Move no matched photos
+    """We'll have some folder without match, for this folders we'll
+    move manual_storage. An then it will verify manual"""
+
+#Create the excel
+"""We'll create a excel with all the info, the code is actually in
+db_excel.py, the information that we'll need is: Naam, Datum, Medium,
+url/ID, Reach, Mediawaarde. This information is in different data bases.
+The objects can be identify with id_obj and we can verify with the ID"""
