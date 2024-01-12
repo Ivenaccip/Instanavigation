@@ -5,7 +5,7 @@ import glob
 import os
 
 # Datos de la base de datos
-user = 'office'
+user = 'root'
 password = 'Kroon111'
 host = 'localhost'
 
@@ -36,25 +36,25 @@ for file_prefix in files:
                 print(f"Faltan las siguientes hojas en el archivo {excel_file_path}: {missing_sheets}")
                 continue
             for sheet_name in excel_file.sheet_names:
-                df_sheet = pd.read_excel(excel_file_path, sheet_name=sheet_name)
-                print(df_sheet)
+                db_name = os.path.splitext(os.path.basename(file_prefix))[0]
+                cadena_conexion = f'mysql+mysqlconnector://{user}:{password}@{host}/{db_name}'
+                engine = create_engine(cadena_conexion)
 
+                df_sheet = pd.read_excel(excel_file_path, sheet_name=sheet_name)
+                if sheet_name == "Companies":
+                    df_sheet.to_sql(f'{(sheet_name)}', con=engine, if_exists='append', index=False)
+                
+                if sheet_name == "Influencers":
+                    df_sheet.to_sql(f'{(sheet_name)}', con=engine, if_exists='append', index=False)
+
+                if sheet_name == "Mediawaarde":
+                    # Reescribir columnas para que coincidan con las tablas de la base de datos
+                    df_sheet.rename(columns={'Van': 'van', 'Tot volgers': 'tot', 'Bedrag': 'bedrag'}, inplace=True)
+                    df_sheet.to_sql(f'{(sheet_name)}', con=engine, if_exists='append', index=False)
+
+                if sheet_name == "Sticker":
+                    df_sheet.to_sql(f'{(sheet_name)}', con=engine, if_exists='append', index=False)
+        
         except Exception as e:
             print(f"Error al procesar el archivo {excel_file_path}: {e}")
             continue
-
-
-
-        # Extraer el nombre de la base de datos del nombre del archivo
-        db_name = os.path.splitext(os.path.basename(file))[0]
-        cadena_conexion = f'mysql+mysqlconnector://{user}:{password}@{host}/{db_name}'
-        engine = create_engine(cadena_conexion)
-
-        # Reescribir columnas para que coincidan con las tablas de la base de datos
-        df_media.rename(columns={'Van': 'van', 'Tot volgers': 'tot', 'Bedrag': 'bedrag'}, inplace=True)
-
-        # Guardar en la base de datos
-        df.to_sql('companies', con=engine, if_exists='append', index=False)
-        df_influencers.to_sql('influencers', con=engine, if_exists='append', index=False)
-        df_media.to_sql('mediawaarde', con=engine, if_exists='append', index=False)
-        df_phrase.to_sql('sticker', con=engine, if_exists='append', index=False)

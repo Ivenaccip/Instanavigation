@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Data for MySQL
-BD_USER='office'
+BD_USER='root'
 BD_PASS='Kroon111'
 BD_NAME='alpha_test' #create a change all_influencers database
 BD_HOST='localhost'
@@ -21,7 +21,9 @@ else
         db_list_names+=("$base_name")
         echo "Creating a database for $base_name"
         mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" -e "CREATE DATABASE IF NOT EXISTS \`$base_name\`;"
+        mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" -e "GRANT INSERT ON \`$base_name\`.* TO '$BD_USER'@'$BD_HOST';"
     done
+    mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" -e "FLUSH PRIVILEGES;"
 fi
 
 python3 split_or_create.py 
