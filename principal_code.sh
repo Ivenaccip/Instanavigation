@@ -26,6 +26,8 @@ spliting the information"""
 
 actual_directory='./'
 
+db_list_names=()
+
 xlsx_files=($(find "$actual_directory" -maxdepth 1 -name "*.xlsx"))
 if [[ ${#xlsx_files} -eq 0 ]]; then 
     echo "The program requires *.xlsx documents"
@@ -33,17 +35,22 @@ if [[ ${#xlsx_files} -eq 0 ]]; then
 else
     for file in "${xlsx_files[@]}"; do
         base_name=$(basename "$file" .xlsx)
+        db_list_names+=("$base_name")
         echo "Creating a database for $base_name"
         mysql -u"$BD_USER" -p"$BD_PASS" -h "$BD_HOST" -e "CREATE DATABASE IF NOT EXISTS \`$base_name\`;"
+    done
 fi
 
-#Split and all_influencers data base
-"""Verify if we have a database for each .xlsx
-If we don't have, we'll run split.py
-If it exist, we will verify all_influencers data base""" 
-    #Split.py, we separate the excel and convert everything in a table
-    python3 split_or_create.py
-    #We will create all_influencers data base
+#Creating all_influencers database
+"""Creating the database all_influencers, split the information for 
+each database in: Companies, Influencers, Mediawaarde, Sticker""" 
+python3 split_or_create.py 
+
+#Split.py, we separate the excel and convert everything in a table
+python3 split_excel.py "${db_list_names[@]}"
+
+#We will put all the influencers in all_influencers database 
+
 
 #Extraction process
 #We should use all influencers data base

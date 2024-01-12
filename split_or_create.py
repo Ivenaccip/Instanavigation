@@ -6,6 +6,7 @@ First, it'll verify if the table all_influencers exists, if
 the table exist, then we'll split the database information
 in: Influencers, Sticker, Companies, Mediawaarde 
 """
+# Checking if the database 'all_influencers' exists
 # Parametros to connect to the database
 user= 'office'
 password= 'Kroon111'
@@ -27,7 +28,7 @@ chain_bd= f'mysql+mysqlconnector://{user}:{password}@{host}/all_influencers'
 engine = create_engine(chain_conection)
 
 #Conection to fill the database
-not_for_project = ['information_schema', 'mysql', 'performance_schema', 'sys']
+not_for_project = ['information_schema', 'mysql', 'performance_schema', 'sys', 'all_influencers']
 with engine.connect() as conn:
     result = conn.execute("SHOW DATABASES;")
     data_bases = [ db[0] for db in result if db[0] not in not_for_project ]
